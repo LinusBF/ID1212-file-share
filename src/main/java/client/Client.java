@@ -23,40 +23,47 @@ public class Client {
 
     private static void mainLoop() throws RemoteException {
         boolean loggedIn = false;
+        String username = "";
+        System.out.println("Welcome!");
         while (running){
-            System.out.println("Welcome!");
-            controller.printFilesOnServer();
+            if(loggedIn) System.out.println("Logged in as " + username);
+            if(loggedIn) controller.printFilesOnServer();
             System.out.println("Available commands: register, login, upload, download, quit");
             String userChoice = getUserInput();
-            switch (userChoice.toLowerCase()){
+            switch (userChoice){
                 case "register":
                     if(loggedIn) break;
-                    System.out.print("Username: ");
+                    System.out.println("Username: ");
                     String regUsr = getUserInput();
-                    System.out.print("Password: ");
+                    System.out.println("Password: ");
                     String regPass = getUserInput();
                     controller.registerUser(regUsr, regPass);
                     break;
                 case "login":
                     if(loggedIn) break;
-                    System.out.print("Username: ");
+                    System.out.println("Username: ");
                     String loginUsr = getUserInput();
-                    System.out.print("Password: ");
+                    username = loginUsr;
+                    System.out.println("Password: ");
                     String loginPass = getUserInput();
                     if(controller.loginUser(loginUsr, loginPass)) loggedIn = true;
+                    else username = "";
                     break;
                 case "upload":
                     if(!loggedIn) break;
                     System.out.println("Filename to upload: ./FilesToUpload/");
                     String uploadName = getUserInput();
-                    controller.uploadFile(uploadName);
+                    controller.uploadFile(uploadName, username);
                     break;
                 case "download":
                     if(!loggedIn) break;
                     System.out.println("Filename to download: ");
                     String downloadName = getUserInput();
-                    controller.downloadFile(downloadName);
+                    controller.downloadFile(downloadName, username);
                     break;
+                case "quit":
+                    System.out.println("Bye!");
+                    System.exit(0);
                 default:
                     System.out.println("Please type a valid command");
                     break;
@@ -69,5 +76,9 @@ public class Client {
         if (in.hasNext()) {
             return in.nextLine();
         } else return getUserInput();
+    }
+
+    public void fileWasAccessed(FileDTO file, String username){
+        System.out.println("User " + username + " downloaded your file " + file.getName());
     }
 }

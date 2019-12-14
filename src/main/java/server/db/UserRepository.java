@@ -6,11 +6,10 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import server.Server;
 
 public class UserRepository {
-    private static SessionFactory factory;
-
     public Integer addUser(String username, String password){
         Session session = Server.sessionFactory.openSession();
         Transaction tx = null;
@@ -37,7 +36,10 @@ public class UserRepository {
 
         try {
             tx = session.beginTransaction();
-            user = (UserEntity) session.createQuery("FROM user WHERE username=" + username).getSingleResult();
+            Query query = session.createQuery("FROM UserEntity user WHERE user.username=:name");
+            user = (UserEntity) query
+                    .setParameter("name", username)
+                    .getSingleResult();
             tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();

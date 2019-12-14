@@ -36,4 +36,9 @@ public class FileDTO implements Serializable {
     public void setSize(int size) {
         this.size = size;
     }
+
+    @Override
+    public String toString() {
+        return "File: " + name + " (" + size + ") owner: " + owner;
+    }
 }

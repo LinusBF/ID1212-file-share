@@ -2,25 +2,30 @@ package server;
 
 import errors.UsernameTakenException;
 import interfaces.LoginRemoteAPI;
+import server.db.UserEntity;
+import server.db.UserRepository;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class LoginService extends UnicastRemoteObject implements LoginRemoteAPI {
+    UserRepository userRepo;
 
     protected LoginService() throws RemoteException {
         super();
+        userRepo = new UserRepository();
     }
 
     @Override
-    public boolean registerUser(String username, String password) throws RemoteException, UsernameTakenException {
-        System.out.println("Got login request from " + username);
-        return false;
+    public Integer registerUser(String username, String password) throws RemoteException, UsernameTakenException {
+        System.out.println("Got register request with username" + username);
+        return this.userRepo.addUser(username, password);
     }
 
     @Override
     public boolean login(String username, String password) throws RemoteException {
         System.out.println("Got login request from " + username);
-        return false;
+        UserEntity user = this.userRepo.getUser(username);
+        return user.getPassword().equals(password);
     }
 }

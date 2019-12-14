@@ -6,6 +6,6 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface LoginRemoteAPI extends Remote {
-    boolean registerUser(String username, String password) throws RemoteException, UsernameTakenException;
+    Integer registerUser(String username, String password) throws RemoteException, UsernameTakenException;
     boolean login(String username, String password) throws RemoteException;
 }

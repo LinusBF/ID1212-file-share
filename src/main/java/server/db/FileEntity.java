@@ -58,4 +58,8 @@ public class FileEntity {
     public void setSize(int size) {
         this.size = size;
     }
+
+    public static FileDTO getFileDTO(FileEntity f){
+        return new FileDTO(f.filename, f.owner, f.size);
+    }
 }
