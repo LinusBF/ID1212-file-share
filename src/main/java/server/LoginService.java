@@ -1,5 +1,6 @@
 package server;
 
+import errors.IncorrectCredentialsException;
 import errors.UsernameTakenException;
 import interfaces.LoginRemoteAPI;
 import server.db.UserEntity;
@@ -9,9 +10,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class LoginService extends UnicastRemoteObject implements LoginRemoteAPI {
-    UserRepository userRepo;
+    private UserRepository userRepo;
 
-    protected LoginService() throws RemoteException {
+    LoginService() throws RemoteException {
         super();
         userRepo = new UserRepository();
     }
@@ -25,7 +26,12 @@ public class LoginService extends UnicastRemoteObject implements LoginRemoteAPI 
     @Override
     public boolean login(String username, String password) throws RemoteException {
         System.out.println("Got login request from " + username);
-        UserEntity user = this.userRepo.getUser(username);
-        return user.getPassword().equals(password);
+        UserEntity user;
+        try{
+            user = this.userRepo.getUser(username);
+        } catch (IncorrectCredentialsException e){
+            return false;
+        }
+        return user != null && user.getPassword().equals(password);
     }
 }

@@ -2,12 +2,15 @@ package server.db;
 import java.util.List;
 import java.util.Iterator;
 
+import errors.IncorrectCredentialsException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import server.Server;
+
+import javax.persistence.NoResultException;
 
 public class UserRepository {
     public Integer addUser(String username, String password){
@@ -29,7 +32,7 @@ public class UserRepository {
         return userId;
     }
 
-    public UserEntity getUser(String username){
+    public UserEntity getUser(String username) throws IncorrectCredentialsException {
         Session session = Server.sessionFactory.openSession();
         Transaction tx = null;
         UserEntity user = null;
@@ -41,6 +44,10 @@ public class UserRepository {
                     .setParameter("name", username)
                     .getSingleResult();
             tx.commit();
+        } catch (NoResultException e) {
+            if (tx!=null) tx.rollback();
+            session.close();
+            throw new IncorrectCredentialsException();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
             e.printStackTrace();

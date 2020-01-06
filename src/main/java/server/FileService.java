@@ -13,23 +13,23 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 import java.util.logging.FileHandler;
 
 public class FileService extends UnicastRemoteObject implements FileRemoteAPI {
-    FileRepository fileRepo;
-    HashMap<Integer, RemoteRef> fileUploaders;
+    private FileRepository fileRepo;
 
-    protected FileService() throws RemoteException {
+    FileService() throws RemoteException {
         super();
         fileRepo = new FileRepository();
-        fileUploaders = RMIHandler.fileUploaders;
     }
 
     @Override
     public void uploadFile(FileDTO file) throws RemoteException {
         System.out.println("Got file: " + file.getName());
-        Integer id = fileRepo.addFile(file);
-        fileUploaders.put(id, this.ref);
+        fileRepo.addFile(file);
+        Server.downloadTracker.put(file, new Stack<>());
+        System.out.println(Server.downloadTracker);
     }
 
     @Override
@@ -50,10 +50,24 @@ public class FileService extends UnicastRemoteObject implements FileRemoteAPI {
     }
 
     @Override
+    public HashMap<FileDTO, Stack<String>> listNotifications(String owner) throws RemoteException {
+        ArrayList<FileDTO> ownedFiles = new ArrayList<>();
+        HashMap<FileDTO, Stack<String>> ownedFilesDownloaded = new HashMap<>();
+        for(FileDTO file : Server.downloadTracker.keySet()){
+            if(file.getOwner().equals(owner)) ownedFiles.add(file);
+        }
+        for(FileDTO ownedFile : ownedFiles){
+            ownedFilesDownloaded.put(ownedFile, Server.downloadTracker.get(ownedFile));
+            Server.downloadTracker.put(ownedFile, new Stack<>());
+        }
+        return ownedFilesDownloaded;
+    }
+
+    @Override
     public FileDTO getFile(String filename, String username) throws RemoteException {
         FileEntity dbFile = fileRepo.getFile(filename);
         FileDTO file = FileEntity.getFileDTO(dbFile);
-        RemoteRef ref = fileUploaders.get(dbFile.getId());
+        Server.downloadTracker.get(file).push(username);
         System.out.println("Downloaded file: " + file.toString());
         return file;
     }

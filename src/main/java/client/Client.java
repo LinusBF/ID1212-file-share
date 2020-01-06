@@ -6,6 +6,7 @@ import interfaces.LoginRemoteAPI;
 
 import java.rmi.RemoteException;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class Client {
     private static Boolean running;
@@ -28,6 +29,7 @@ public class Client {
         while (running){
             if(loggedIn) System.out.println("Logged in as " + username);
             if(loggedIn) controller.printFilesOnServer();
+            if(loggedIn) controller.printNotifications(username);
             System.out.println("Available commands: register, login, upload, download, quit");
             String userChoice = getUserInput();
             switch (userChoice){

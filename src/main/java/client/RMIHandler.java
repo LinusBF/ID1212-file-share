@@ -8,8 +8,8 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-public class RMIHandler {
-    public static LoginRemoteAPI lookupLoginAPI() {
+class RMIHandler {
+    static LoginRemoteAPI lookupLoginAPI() {
         try {
             return (LoginRemoteAPI) Naming.lookup("rmi://localhost:4200/login");
         } catch (RemoteException | NotBoundException | MalformedURLException e) {
